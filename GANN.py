@@ -235,7 +235,7 @@ class Gannmodule():
         self.build()
 
     def build(self):
-        mona = self.name;
+        mona = self.name
         n = self.outsize
         self.weights = tf.Variable(np.random.uniform(-.1, .1, size=(self.insize, n)),
                                    name=mona + '-wgt', trainable=True)  # True = default for trainable anyway
@@ -267,10 +267,12 @@ class Gannmodule():
 # *********** CASE MANAGER ********
 # This is a simple class for organizing the cases (training, validation and test) for a
 # a machine-learning system
+# To instantiate this object you need to define a function that generates cases on the form
+# Case = [input-vector, target-vector], and then the manager will split the cases into training, val, and test.
 
 class Caseman():
 
-    def __init__(self, cfunc, vfrac=0, tfrac=0):
+    def __init__(self, cfunc, vfrac=0.1, tfrac=0.1):
         self.casefunc = cfunc
         self.validation_fraction = vfrac
         self.test_fraction = tfrac
