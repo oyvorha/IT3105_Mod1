@@ -235,7 +235,7 @@ class Gannmodule():
         self.build()
 
     def build(self):
-        mona = self.name;
+        mona = self.name
         n = self.outsize
         self.weights = tf.Variable(np.random.uniform(-.1, .1, size=(self.insize, n)),
                                    name=mona + '-wgt', trainable=True)  # True = default for trainable anyway
