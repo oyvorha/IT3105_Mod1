@@ -52,6 +52,7 @@ def cfunc_mnist():
 Make NN with Gann for MNIST
 """
 
-cman = Caseman(cfunc_mnist)
-gann_mnist = Gann([784, 200, 10], cman, 0.2, 2, 10, 3, True)
-gann_mnist.run(100, None, False, 1)
+def NN_mnist(dims=[784, 200, 10], lrate=0.1, showint=2, mbs=10, vint=100, softmax=False):
+    cman = Caseman(cfunc_mnist)
+    gann_mnist = Gann(dims, cman, lrate, showint, mbs, vint, softmax)
+    gann_mnist.run(100, None, False, 1)
