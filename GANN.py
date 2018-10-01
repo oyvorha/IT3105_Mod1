@@ -118,7 +118,7 @@ class Gann():
             error += grabvals[0]
             if i % 50 == 0 and i != 0:
                 self.error_history.append((step, error/50))
-                self.accuracy_history.append((step, 1))
+                self.accuracy_history.append((step, 1-error/50))
                 error = 0
             self.consider_validation_testing(step, sess)
         TFT.plot_training_history(self.error_history, self.validation_history, self.accuracy_history,
