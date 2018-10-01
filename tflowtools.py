@@ -191,7 +191,7 @@ def gen_anti_symvect_cases(vlen, count, label=0):
 
 # Generate a dataset with an equal (or nearly so if vlen is odd) number of symmetric and anti-symmetric bit vectors
 def gen_symvect_dataset(vlen, count):
-    s1 = math.floor(count / 2);
+    s1 = math.floor(count / 2)
     s2 = count - s1
     cases = gen_symvect_cases(vlen, s1) + gen_anti_symvect_cases(vlen, s2)
     NPR.shuffle(cases)
@@ -303,22 +303,23 @@ def gen_random_line_cases(num_cases, dims, min_lines=1, min_opens=1, bias=1.0, m
 
 
 # ********** SEGMENT VECTORS **********
-# These have groups/segments/blobs of "on" bits interspersed in a background of "off" bits.  The key point is that we can
+# These have groups/segments/blobs of "on" bits interspersed in a background of "off" bits. The key point is that we can
 # specify the number of segments, but the sizes are chosen randomly.
 
 def gen_segmented_vector(vectorsize, numsegs, onval=1, offval=0):
-    if vectorsize >= 2 * numsegs - 1:  # Need space for numsegs-1 gaps between the segments
+    if vectorsize >= (2 * numsegs - 1):  # Need space for numsegs-1 gaps between the segments
         vect = [offval] * vectorsize
         if numsegs <= 0:
             return vect
         else:
-            min_gaps = numsegs - 1;
-            max_chunk_size = vectorsize - min_gaps;
+            min_gaps = numsegs - 1
+            max_chunk_size = vectorsize - min_gaps
             min_chunk_size = numsegs
             chunk_size = NPR.randint(min_chunk_size, max_chunk_size + 1)
             seg_sizes = gen_random_pieces(chunk_size, numsegs)
             seg_start_locs = gen_segment_locs(vectorsize, seg_sizes)
-            for s0, size in zip(seg_start_locs, seg_sizes): vect[s0:s0 + size] = [onval] * size
+            for s0, size in zip(seg_start_locs, seg_sizes):
+                vect[s0:s0 + size] = [onval] * size
             return vect
 
 
@@ -329,8 +330,8 @@ def gen_random_pieces(chunk_size, num_pieces):
     else:
         cut_points = list(
             NPR.choice(range(1, chunk_size), num_pieces - 1, replace=False))  # the pts at which to cut up the chunk
-        lastloc = 0;
-        pieces = [];
+        lastloc = 0
+        pieces = []
         cut_points.sort()  # sort in ascending order
         cut_points.append(chunk_size)
         for pt in cut_points:
@@ -340,16 +341,16 @@ def gen_random_pieces(chunk_size, num_pieces):
 
 
 def gen_segment_locs(maxlen, seg_sizes):
-    locs = [];
-    remains = sum(seg_sizes);
-    gaps = len(seg_sizes) - 1;
+    locs = []
+    remains = sum(seg_sizes)
+    gaps = len(seg_sizes) - 1
     start_min = 0
     for ss in seg_sizes:
         space = remains + gaps
         start = NPR.randint(start_min, maxlen - space + 1)
         locs.append(start)
-        remains -= ss;
-        start_min = start + ss + 1;
+        remains -= ss
+        start_min = start + ss + 1
         gaps -= 1
     return locs
 
@@ -368,7 +369,7 @@ def gen_segmented_vector_cases(vectorlen, count, minsegs, maxsegs, poptargs=True
 
 
 def segment_count(vect, onval=1, offval=0):
-    lastval = offval;
+    lastval = offval
     count = 0
     for elem in vect:
         if elem == onval and lastval == offval: count += 1
@@ -538,7 +539,7 @@ def gen_dim_reduced_data(feature_array, target_size, eigen_values, eigen_vectors
     return np.dot(feature_array, w_transform)
 
 
-# *************** DENDROGRAM*************************
+# *************** DENDROGRAM *************************
 # Options:
 # orientation = top, bottom, left, right (refers to location of the root of the tree)
 # mode = single, average, complete, centroid, ward, median
