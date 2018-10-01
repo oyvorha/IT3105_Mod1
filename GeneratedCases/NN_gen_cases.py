@@ -5,6 +5,7 @@ from GANN import *
 def bit_counter(dims=[15, 500, 500, 16], lrate=0.1, showint=2, mbs=10, vint=100, softmax=True):
     def cfunc_bit_counter():
         return tft.gen_vector_count_cases(500, 15)
+
     cman = Caseman(cfunc_bit_counter)
     gann_bit_counter = Gann(dims, cman, lrate, showint, mbs, vint, softmax)
     gann_bit_counter.run(500, None, False, 1)
