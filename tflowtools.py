@@ -454,8 +454,10 @@ def hinton_plot(matrix, maxval=None, maxsize=1, fig=None, trans=True, scale=True
                 colors=['gray', 'red', 'blue', 'white']):
     hfig = fig if fig else PLT.figure()
     hfig.suptitle(title, fontsize=18)
-    if trans: matrix = matrix.transpose()
-    if maxval == None: maxval = np.abs(matrix).max()
+    if trans:
+        matrix = matrix.transpose()
+    if maxval == None:
+        maxval = np.abs(matrix).max()
     if not maxsize: maxsize = 2 ** np.ceil(np.log(maxval) / np.log(2))
 
     axes = hfig.gca()
@@ -478,6 +480,8 @@ def hinton_plot(matrix, maxval=None, maxsize=1, fig=None, trans=True, scale=True
     axes.autoscale_view()
     PLT.draw()
     PLT.pause(.001)
+    print("hade")
+    PLT.show()
 
 
 # This graphically displays a matrix with color codes for positive, negative, small positive and small negative,
@@ -489,12 +493,13 @@ def display_matrix(matrix, fig=None, trans=True, scale=True, title='Matrix', tfo
                    cutoff=0.1, colors=['red', 'yellow', 'grey', 'blue']):
     hfig = fig if fig else PLT.figure()
     hfig.suptitle(title, fontsize=18)
-    if trans: matrix = matrix.transpose()
+    if trans:
+        matrix = matrix.transpose()
     axes = hfig.gca()
     axes.clear()
-    axes.patch.set_facecolor('white');  # This is the background color.  Hinton uses gray
+    axes.patch.set_facecolor('white')  # This is the background color.  Hinton uses gray
     axes.set_aspect('auto', 'box')  # Options: ('equal'), ('equal','box'), ('auto'), ('auto','box')..see matplotlib docs
-    axes.xaxis.set_major_locator(PLT.NullLocator());
+    axes.xaxis.set_major_locator(PLT.NullLocator())
     axes.yaxis.set_major_locator(PLT.NullLocator())
 
     ymax = matrix.shape[1] - 1
@@ -514,6 +519,7 @@ def display_matrix(matrix, fig=None, trans=True, scale=True, title='Matrix', tfo
     axes.autoscale_view()
     PLT.draw()
     PLT.pause(1)
+    PLT.show()
 
 
 # ****** Principle Component Analysis (PCA) ********
