@@ -68,19 +68,48 @@ class Gann():
         optimizer = tf.train.GradientDescentOptimizer(self.learning_rate)
         self.trainer = optimizer.minimize(self.error, name='Backprop')
 
-    def do_training(self, sess, cases, epochs=100, continued=False):
-        if not (continued): self.error_history = []
+    """
+    def do_training_one_mbatch(self, sess, cases, epochs=100, continued=False):
+        if not (continued):
+            self.error_history = []
         for i in range(epochs):
-            error = 0;
+            # random.shuffle(cases)
+            error = 0
             step = self.global_training_step + i
             gvars = [self.error] + self.grabvars
-            mbs = self.minibatch_size;
-            ncases = len(cases);
+            mbs = self.minibatch_size
+            ncases = len(cases)
+            for cstart in range(0, ncases, mbs):  # Loop through cases, one minibatch at a time.
+                cend = min(ncases, cstart + mbs)
+                minibatch = cases[cstart:cend]
+                # inputs = [c[0] for c in minibatch]
+                # targets = [c[1] for c in minibatch]
+                feeder = {self.input: inputs, self.target: targets}
+                _, grabvals, _ = self.run_one_step([self.trainer], gvars, self.probes, session=sess,
+                                                   feed_dict=feeder, step=step, show_interval=self.show_interval)
+                if i % 50 == 0:
+                    self.error_history.append((step, grabvals))
+            self.consider_validation_testing(step, sess)
+        self.global_training_step += epochs
+        TFT.plot_training_history(self.error_history, self.validation_history, xtitle="Epoch", ytitle="Error",
+                                  title="", fig=not (continued))
+    """
+
+    def do_training(self, sess, cases, epochs=100, continued=False):
+        if not (continued):
+            self.error_history = []
+        for i in range(epochs):
+            # random.shuffle(cases)
+            error = 0
+            step = self.global_training_step + i
+            gvars = [self.error] + self.grabvars
+            mbs = self.minibatch_size
+            ncases = len(cases)
             nmb = math.ceil(ncases / mbs)
             for cstart in range(0, ncases, mbs):  # Loop through cases, one minibatch at a time.
                 cend = min(ncases, cstart + mbs)
                 minibatch = cases[cstart:cend]
-                inputs = [c[0] for c in minibatch];
+                inputs = [c[0] for c in minibatch]
                 targets = [c[1] for c in minibatch]
                 feeder = {self.input: inputs, self.target: targets}
                 _, grabvals, _ = self.run_one_step([self.trainer], gvars, self.probes, session=sess,
