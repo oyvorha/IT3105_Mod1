@@ -419,7 +419,7 @@ def simple_plot(yvals, xvals=None, xtitle='X', ytitle='Y', title='Y = F(X)'):
 
 
 # Each history is a list of pairs (timestamp, value).
-def plot_training_history(error_hist, validation_hist=[], xtitle="Epoch", ytitle="Error", title="History", fig=True):
+def plot_training_history(error_hist, validation_hist=[], accuracy_hist=[], xtitle="Steps", ytitle="Error", title="History", fig=True):
     PLT.ion()
     if fig:
         PLT.figure()
@@ -427,6 +427,8 @@ def plot_training_history(error_hist, validation_hist=[], xtitle="Epoch", ytitle
         simple_plot([p[1] for p in error_hist], [p[0] for p in error_hist], xtitle=xtitle, ytitle=ytitle, title=title)
     if len(validation_hist) > 0:
         simple_plot([p[1] for p in validation_hist], [p[0] for p in validation_hist])
+    if len(accuracy_hist) > 0:
+        simple_plot([p[1] for p in accuracy_hist], [p[0] for p in accuracy_hist])
     PLT.ioff()
     PLT.show()
 
