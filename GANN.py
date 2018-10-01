@@ -3,6 +3,7 @@ import numpy as np
 import math
 import matplotlib.pyplot as PLT
 import tflowtools as TFT
+import random
 
 
 # ******* A General Artificial Neural Network ********
@@ -20,6 +21,7 @@ class Gann():
         self.minibatch_size = mbs
         self.validation_interval = vint
         self.validation_history = []
+        self.accuracy_history = []
         self.caseman = cman
         self.softmax_outputs = softmax
         self.modules = []
@@ -96,31 +98,31 @@ class Gann():
                                   title="", fig=not (continued))
     """
 
-    def do_training(self, sess, cases, epochs=100, continued=False):
-        if not (continued):
+    def do_training(self, sess, cases, steps=100, continued=False):
+        if not continued:
             self.error_history = []
-        for i in range(epochs):
-            # random.shuffle(cases)
-            error = 0
+        error = 0
+        for i in range(steps):
             step = self.global_training_step + i
             gvars = [self.error] + self.grabvars
             mbs = self.minibatch_size
-            ncases = len(cases)
-            nmb = math.ceil(ncases / mbs)
-            for cstart in range(0, ncases, mbs):  # Loop through cases, one minibatch at a time.
-                cend = min(ncases, cstart + mbs)
-                minibatch = cases[cstart:cend]
-                inputs = [c[0] for c in minibatch]
-                targets = [c[1] for c in minibatch]
-                feeder = {self.input: inputs, self.target: targets}
-                _, grabvals, _ = self.run_one_step([self.trainer], gvars, self.probes, session=sess,
-                                                   feed_dict=feeder, step=step, show_interval=self.show_interval)
-                error += grabvals[0]
-            self.error_history.append((step, error / nmb))
+            minibatch = []
+            while len(minibatch) < mbs:
+                number = random.randint(0, len(cases)-1)
+                minibatch.append(cases[number])
+            inputs = [c[0] for c in minibatch]
+            targets = [c[1] for c in minibatch]
+            feeder = {self.input: inputs, self.target: targets}
+            _, grabvals, _ = self.run_one_step([self.trainer], gvars, self.probes, session=sess,
+                                               feed_dict=feeder, step=step, show_interval=self.show_interval)
+            error += grabvals[0]
+            if i % 50 == 0 and i != 0:
+                self.error_history.append((step, error/50))
+                self.accuracy_history.append((step, 1-error/50))
+                error = 0
             self.consider_validation_testing(step, sess)
-        self.global_training_step += epochs
-        TFT.plot_training_history(self.error_history, self.validation_history, xtitle="Epoch", ytitle="Error",
-                                  title="", fig=not (continued))
+        TFT.plot_training_history(self.error_history, self.validation_history, self.accuracy_history,
+                                  xtitle="Epoch", ytitle="Error", title="", fig=not continued)
 
     # bestk = 1 when you're doing a classification task and the targets are one-hot vectors.  This will invoke the
     # gen_match_counter error function. Otherwise, when
@@ -204,10 +206,10 @@ class Gann():
             else:
                 print(v, end="\n\n")
 
-    def run(self, epochs=100, sess=None, continued=False, bestk=None):
+    def run(self, steps=100, sess=None, continued=False, bestk=None):
         PLT.ion()
         PLT.show()
-        self.training_session(epochs, sess=sess, continued=continued)
+        self.training_session(steps, sess=sess, continued=continued)
         self.test_on_trains(sess=self.current_session, bestk=bestk)
         self.testing_session(sess=self.current_session, bestk=bestk)
         self.close_current_session(view=False)
