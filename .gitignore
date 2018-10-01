@@ -108,3 +108,6 @@ venv.bak/
 
 #netsaver
 *netsaver/
+
+#idea
+*.idea/
