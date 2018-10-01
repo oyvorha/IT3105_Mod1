@@ -31,7 +31,16 @@ def symmetry(dims=[101, 50, 2], lrate=0.1, showint=2, mbs=10, vint=100, softmax=
                 label = [0, 1]
             cases.append([dataset[i], label])
         return cases
+
     cman = Caseman(cfunc_symmetry)
     gann_symmetry = Gann(dims, cman, lrate, showint, mbs, vint, softmax)
     gann_symmetry.run(50, None, False, 1)
 
+
+def segmented_vectors(dims=[25, 500, 500, 9], lrate=0.1, showint=2, mbs=10, vint=100, softmax=True):
+    def cfunc_seg_vectors():
+        return tft.gen_segmented_vector_cases(25, 1000, 0, 8)
+
+    cman = Caseman(cfunc_seg_vectors)
+    gann_seg_vectors = Gann(dims, cman, lrate, showint, mbs, vint, softmax)
+    gann_seg_vectors.run(500, None, False, 1)
