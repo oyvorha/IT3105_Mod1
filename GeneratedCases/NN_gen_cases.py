@@ -13,10 +13,11 @@ def bit_counter(dims=[15, 500, 500, 16], lrate=0.1, showint=2, mbs=10, vint=100,
 def parity(dims=[10, 50, 2], lrate=0.1, showint=2, mbs=10, vint=100, softmax=True):
     def cfunc_parity():
         return tft.gen_all_parity_cases(10)
+
     print(cfunc_parity())
     cman = Caseman(cfunc_parity)
     gann_parity = Gann(dims, cman, lrate, showint, mbs, vint, softmax)
-    gann_parity.run(50, None, False, 1)
+    gann_parity.run(500, None, False, 1)
 
 
 def symmetry(dims=[101, 50, 2], lrate=0.1, showint=2, mbs=10, vint=100, softmax=True):

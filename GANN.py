@@ -45,12 +45,12 @@ class Gann():
         tf.reset_default_graph()  # This is essential for doing multiple runs!!
         num_inputs = self.layer_sizes[0]
         self.input = tf.placeholder(tf.float64, shape=(None, num_inputs), name='Input')
-        invar = self.input;
+        invar = self.input
         insize = num_inputs
         # Build all of the modules
         for i, outsize in enumerate(self.layer_sizes[1:]):
             gmod = Gannmodule(self, i, invar, insize, outsize)
-            invar = gmod.output;
+            invar = gmod.output
             insize = gmod.outsize
         self.output = gmod.output  # Output of last module is output of whole network
         if self.softmax_outputs: self.output = tf.nn.softmax(self.output)
@@ -97,7 +97,7 @@ class Gann():
     # bestk=None, the standard MSE error function is used for testing.
 
     def do_testing(self, sess, cases, msg='Testing', bestk=None):
-        inputs = [c[0] for c in cases];
+        inputs = [c[0] for c in cases]
         targets = [c[1] for c in cases]
         feeder = {self.input: inputs, self.target: targets}
         self.test_func = self.error
@@ -162,7 +162,7 @@ class Gann():
         return results[0], results[1], sess
 
     def display_grabvars(self, grabbed_vals, grabbed_vars, step=1):
-        names = [x.name for x in grabbed_vars];
+        names = [x.name for x in grabbed_vars]
         msg = "Grabbed Variables at Step " + str(step)
         print("\n" + msg, end="\n")
         fig_index = 0
@@ -176,6 +176,7 @@ class Gann():
 
     def run(self, epochs=100, sess=None, continued=False, bestk=None):
         PLT.ion()
+        PLT.show()
         self.training_session(epochs, sess=sess, continued=continued)
         self.test_on_trains(sess=self.current_session, bestk=bestk)
         self.testing_session(sess=self.current_session, bestk=bestk)
