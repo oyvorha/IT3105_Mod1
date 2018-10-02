@@ -63,12 +63,25 @@ class Gann():
     # The optimizer knows to gather up all "trainable" variables in the function graph and compute
     # derivatives of the error function with respect to each component of each variable, i.e. each weight
     # of the weight array.
-
-    def configure_learning(self):
-        self.error = tf.reduce_mean(tf.square(self.target - self.output), name='MSE')
+    def configure_learning(self, optimizer="Adam", error="MSE"):
         self.predictor = self.output  # Simple prediction runs will request the value of output neurons
+
         # Defining the training operator
-        optimizer = tf.train.GradientDescentOptimizer(self.learning_rate)
+        if optimizer.lower() == "graddescent":
+            optimizer = tf.train.GradientDescentOptimizer(self.learning_rate)
+        elif optimizer.lower() == "adam":
+            optimizer = tf.train.AdamOptimizer(self.learning_rate)
+        elif optimizer.lower() == "rms":
+            optimizer = tf.train.RMSPropOptimizer(self.learning_rate)
+        elif optimizer.lower() == "adagrad":
+            optimizer = tf.train.AdagradOptimizer(self.learning_rate)
+
+        # Defining the loss function
+        if error.lower() == "mse":
+            self.error = tf.reduce_mean(tf.square(self.target - self.output), name='MSE')
+        elif error.lower() == "crossentropy":
+            self.error = cost = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits(self.output, self.target))
+
         self.trainer = optimizer.minimize(self.error, name='Backprop')
 
     """
