@@ -430,7 +430,6 @@ def plot_training_history(error_hist, validation_hist=[], accuracy_hist=[], xtit
     if len(accuracy_hist) > 0:
         simple_plot([p[1] for p in accuracy_hist], [p[0] for p in accuracy_hist])
     PLT.ioff()
-    PLT.show()
 
 
 # alpha = transparency
@@ -454,13 +453,15 @@ def hinton_plot(matrix, maxval=None, maxsize=1, fig=None, trans=True, scale=True
                 colors=['gray', 'red', 'blue', 'white']):
     hfig = fig if fig else PLT.figure()
     hfig.suptitle(title, fontsize=18)
-    if trans: matrix = matrix.transpose()
-    if maxval == None: maxval = np.abs(matrix).max()
+    if trans:
+        matrix = matrix.transpose()
+    if maxval == None:
+        maxval = np.abs(matrix).max()
     if not maxsize: maxsize = 2 ** np.ceil(np.log(maxval) / np.log(2))
 
     axes = hfig.gca()
     axes.clear()
-    axes.patch.set_facecolor(colors[0]);  # This is the background color.  Hinton uses gray
+    axes.patch.set_facecolor(colors[0])  # This is the background color.  Hinton uses gray
     axes.set_aspect('auto', 'box')  # Options: ('equal'), ('equal','box'), ('auto'), ('auto','box')..see matplotlib docs
     axes.xaxis.set_major_locator(PLT.NullLocator());
     axes.yaxis.set_major_locator(PLT.NullLocator())
@@ -489,12 +490,13 @@ def display_matrix(matrix, fig=None, trans=True, scale=True, title='Matrix', tfo
                    cutoff=0.1, colors=['red', 'yellow', 'grey', 'blue']):
     hfig = fig if fig else PLT.figure()
     hfig.suptitle(title, fontsize=18)
-    if trans: matrix = matrix.transpose()
+    if trans:
+        matrix = matrix.transpose()
     axes = hfig.gca()
     axes.clear()
-    axes.patch.set_facecolor('white');  # This is the background color.  Hinton uses gray
+    axes.patch.set_facecolor('white')  # This is the background color.  Hinton uses gray
     axes.set_aspect('auto', 'box')  # Options: ('equal'), ('equal','box'), ('auto'), ('auto','box')..see matplotlib docs
-    axes.xaxis.set_major_locator(PLT.NullLocator());
+    axes.xaxis.set_major_locator(PLT.NullLocator())
     axes.yaxis.set_major_locator(PLT.NullLocator())
 
     ymax = matrix.shape[1] - 1

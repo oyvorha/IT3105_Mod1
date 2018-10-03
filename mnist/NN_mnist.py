@@ -31,7 +31,7 @@ def labels_to_one_hot(labels):
     for label in labels:
         for number in label:
             one_hot.append(tools.int_to_one_hot(number, 10))
-    return np.asarray(one_hot)
+    return one_hot
 
 
 def cfunc_mnist():
@@ -53,7 +53,13 @@ Make NN with Gann for MNIST
 """
 
 
-def NN_mnist(dims=[784, 200, 10], lrate=0.1, showint=2, mbs=10, vint=100, softmax=False):
+def NN_mnist(dims=[784, 200, 10], lrate=0.01, mbs=100, vint=300, softmax=True,
+             optimizer="adam", error="crossentropy", runs=8000, bestk=1, no_of_cases=10, display_grabvars=[],
+            dendrogram_layers=[1], dendrogram=True):
     cman = Caseman(cfunc_mnist)
-    gann_mnist = Gann(dims, cman, lrate, showint, mbs, vint, softmax)
-    gann_mnist.run(100, None, False, 1)
+    gann_mnist = Gann(dims, cman, lrate, mbs, vint, softmax, optimizer, error)
+    gann_mnist.run(runs, bestk=bestk)
+    if dendrogram_layers or dendrogram:
+        gann_mnist.do_mapping(no_of_cases, display_grabvars, dendrogram_layers, bestk, dendrogram, labels=True)
+
+NN_mnist()
