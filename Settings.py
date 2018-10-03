@@ -49,24 +49,24 @@ def read_file(input_file):
         elif label.lower().rstrip() == "map dendograms":
             if val_is_set:
                 for v in val:
-                    config.map_dendograms.append(int(v))
+                    config.map_dendograms.append(int(v.rstrip()))
 
         elif label.lower().rstrip() == "dendograms":
             if val_is_set:
                 for v in val:
-                    config.dendograms = int(v)
+                    config.dendograms = int(v.rstrip())
 
         elif label.lower().rstrip() == "display variables":
             if val_is_set:
                 display_var = []
                 for i in range(0, len(val)-1, 2):
-                    display_var.append((int(val[i]), val[i+1]))
+                    display_var.append((int(val[i]), val[i+1].rstrip()))
                 config.display_variables = display_var
 
         elif label.lower().rstrip() == "network dimensions":
             if val_is_set:
                 for v in val:
-                    config.dims.append(int(v))
+                    config.dims.append(int(v.rstrip()))
 
         elif label.lower().rstrip() == "hidden activation function":
             config.hidden_act_func = val[0].strip()
@@ -86,12 +86,12 @@ def read_file(input_file):
         elif label.lower().rstrip() == "initial weight range":
             if val_is_set:
                 for v in val:
-                    config.init_wgt_range.append(float(v))
+                    config.init_wgt_range.append(float(v.rstrip()))
 
         elif label.lower().rstrip() == "data source parameters":
             if val_is_set:
                 for v in val:
-                    config.data_source_param.append(int(v))
+                    config.data_source_param.append(int(v.rstrip()))
 
         elif label.lower().rstrip() == "validation fraction":
             config.val_frac = float(val[0].rstrip())
@@ -105,7 +105,7 @@ def read_file(input_file):
         elif label.lower().rstrip() == "softmax":
             if val_is_set:
                 for v in val:
-                    config.softmax = int(v)
+                    config.softmax = int(v.rstrip())
 
         file_obj.close()
 
