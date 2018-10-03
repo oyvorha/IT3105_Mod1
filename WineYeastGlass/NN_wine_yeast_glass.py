@@ -7,7 +7,7 @@ def wine_class(dims=[11, 100, 100, 100, 10, 8], lrate=0.001, mbs=500, vint=250, 
                dendrogram_layers=[], dendrogram=False, range_min=-.1, range_max=.1,
                 vfrac=.1, tfrac=.1, hidden_func="relu"):
     def cfunc_wine_vectors():
-        return fr.read_file("wine.txt")
+        return fr.read_file("WineYeastGlass/wine.txt")
     cman = Caseman(cfunc_wine_vectors, vfrac, tfrac)
     gann_wine_vectors = Gann(dims, cman, lrate, mbs, vint, softmax, optimizer, error, range_min, range_max, hidden_func)
     gann_wine_vectors.run(runs, bestk=bestk)
@@ -21,8 +21,7 @@ def yeast_class(dims=[8, 100, 100, 10], lrate=0.001, mbs=512, vint=500, softmax=
                 dendrogram_layers=[], dendrogram=False, range_min=-.1, range_max=.1,
                 vfrac=.1, tfrac=.1, hidden_func="relu"):
     def cfunc_yeast_vectors():
-        return fr.read_file("yeast.txt")
-
+        return fr.read_file("WineYeastGlass/yeast.txt")
     cman = Caseman(cfunc_yeast_vectors, vfrac, tfrac)
     gann_yeast_vectors = Gann(dims, cman, lrate, mbs, vint, softmax, optimizer, error, range_min, range_max, hidden_func)
     gann_yeast_vectors.run(runs, bestk=bestk)
@@ -35,7 +34,7 @@ def glass_class(dims=[9, 100, 100, 100, 6], lrate=0.01, mbs=200, vint=500, softm
                 dendrogram_layers=[], dendrogram=False, range_min=-.1, range_max=.1,
                 vfrac=.1, tfrac=.1, hidden_func="relu"):
     def cfunc_glass_vectors():
-        return fr.read_file("glass.txt")
+        return fr.read_file("WineYeastGlass/glass.txt")
 
     cman = Caseman(cfunc_glass_vectors, vfrac, tfrac)
     gann_glass_vectors = Gann(dims, cman, lrate, mbs, vint, softmax, optimizer, error,range_min, range_max, hidden_func)
