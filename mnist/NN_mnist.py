@@ -61,5 +61,3 @@ def NN_mnist(dims=[784, 200, 10], lrate=0.01, mbs=100, vint=300, softmax=True,
     gann_mnist.run(runs, bestk=bestk)
     if dendrogram_layers or dendrogram:
         gann_mnist.do_mapping(no_of_cases, display_grabvars, dendrogram_layers, bestk, dendrogram, labels=True)
-
-NN_mnist()
