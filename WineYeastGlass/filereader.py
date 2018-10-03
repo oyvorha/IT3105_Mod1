@@ -7,19 +7,19 @@ def read_file(filename):
     if filename.split('.')[0] == "wine":
         for line in file_obj.readlines():
             line_vec = line.split(';')
-            input_vec = line_vec[:10]
+            input_vec = line_vec[:11]
             label = int(line_vec[-1])-1
-            cases.append([list(map(float, input_vec)), tft.int_to_one_hot(label, 6)])
+            cases.append([list(map(float, input_vec)), tft.int_to_one_hot(label, 8)])
     if filename.split('.')[0] == "yeast":
         for line in file_obj.readlines():
             line_vec = line.split(',')
-            input_vec = line_vec[:7]
+            input_vec = line_vec[:8]
             label = int(line_vec[-1])-1
             cases.append([list(map(float, input_vec)), tft.int_to_one_hot(label, 10)])
     if filename.split('.')[0] == "glass":
         for line in file_obj.readlines():
             line_vec = line.split(',')
-            input_vec = line_vec[:8]
+            input_vec = line_vec[:9]
             label = int(line_vec[-1]) - 1
             if label > 4:
                 label -= 1

@@ -31,7 +31,7 @@ def labels_to_one_hot(labels):
     for label in labels:
         for number in label:
             one_hot.append(tools.int_to_one_hot(number, 10))
-    return np.asarray(one_hot)
+    return one_hot
 
 
 def cfunc_mnist():
