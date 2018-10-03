@@ -5,9 +5,9 @@ class Settings():
         self.val_interval = None
         self.best_k = None
         self.map_batch_size = None
-        self.map_layers = []
         self.map_dendograms = []
-        self.display_variables = False
+        self.dendograms = 0
+        self.display_variables = []
         self.dims = []
         self.hidden_act_func = None
         self.output_act_func = None
@@ -15,16 +15,16 @@ class Settings():
         self.optimizer = None
         self.learning_rate = None
         self.init_wgt_range = []
-        self.data_source = None
         self.data_source_param = []
         self.val_frac = None
         self.test_frac = None
         self.mbs = None
+        self.softmax = 1
 
 
-def read_file ():
+def read_file(input_file):
     config = Settings()
-    file_obj = open("input", 'r')
+    file_obj = open(input_file, 'r')
     for line in file_obj.readlines():
         line_vec = line.split(':')
         label = line_vec[0]
@@ -46,15 +46,15 @@ def read_file ():
         elif label.lower().rstrip() == "map batch size":
             config.map_batch_size = int(val[0].rstrip())
 
-        elif label.lower().rstrip() == "map layers":
-            if val_is_set:
-                for v in val:
-                    config.map_layers.append(int(v))
-
         elif label.lower().rstrip() == "map dendograms":
             if val_is_set:
                 for v in val:
                     config.map_dendograms.append(int(v))
+
+        elif label.lower().rstrip() == "dendograms":
+            if val_is_set:
+                for v in val:
+                    config.dendograms = int(v)
 
         elif label.lower().rstrip() == "display variables":
             if val_is_set:
@@ -88,9 +88,6 @@ def read_file ():
                 for v in val:
                     config.init_wgt_range.append(float(v))
 
-        elif label.lower().rstrip() == "data source":
-            config.data_source = val[0].strip()
-
         elif label.lower().rstrip() == "data source parameters":
             if val_is_set:
                 for v in val:
@@ -104,6 +101,11 @@ def read_file ():
 
         elif label.lower().rstrip() == "minibatch size":
             config.mbs = int(val[0].rstrip())
+
+        elif label.lower().rstrip() == "softmax":
+            if val_is_set:
+                for v in val:
+                    config.softmax = int(v)
 
         file_obj.close()
 
