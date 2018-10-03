@@ -430,7 +430,6 @@ def plot_training_history(error_hist, validation_hist=[], accuracy_hist=[], xtit
     if len(accuracy_hist) > 0:
         simple_plot([p[1] for p in accuracy_hist], [p[0] for p in accuracy_hist])
     PLT.ioff()
-    PLT.show()
 
 
 # alpha = transparency
@@ -462,7 +461,7 @@ def hinton_plot(matrix, maxval=None, maxsize=1, fig=None, trans=True, scale=True
 
     axes = hfig.gca()
     axes.clear()
-    axes.patch.set_facecolor(colors[0]);  # This is the background color.  Hinton uses gray
+    axes.patch.set_facecolor(colors[0])  # This is the background color.  Hinton uses gray
     axes.set_aspect('auto', 'box')  # Options: ('equal'), ('equal','box'), ('auto'), ('auto','box')..see matplotlib docs
     axes.xaxis.set_major_locator(PLT.NullLocator());
     axes.yaxis.set_major_locator(PLT.NullLocator())
@@ -480,8 +479,6 @@ def hinton_plot(matrix, maxval=None, maxsize=1, fig=None, trans=True, scale=True
     axes.autoscale_view()
     PLT.draw()
     PLT.pause(.001)
-    print("hade")
-    PLT.show()
 
 
 # This graphically displays a matrix with color codes for positive, negative, small positive and small negative,
@@ -519,7 +516,6 @@ def display_matrix(matrix, fig=None, trans=True, scale=True, title='Matrix', tfo
     axes.autoscale_view()
     PLT.draw()
     PLT.pause(1)
-    PLT.show()
 
 
 # ****** Principle Component Analysis (PCA) ********
