@@ -5,12 +5,12 @@ Map Batch Size: 10
 Map Dendograms:
 Dendograms:
 Display variables:
-Network dimensions: 9:100:100:100:6
+Network dimensions: 9:100:100:50:6
 Hidden activation function: relu
 Output activation function: softmax
 Loss function: crossentropy
 Optimizer: adam
-Learning rate: 0.01
+Learning rate: 0.003
 Initial weight range: -0.1:0.1
 Data source parameters: 25:1000:0:8
 Validation fraction: 0.1
