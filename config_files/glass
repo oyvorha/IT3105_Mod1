@@ -15,7 +15,7 @@ Optimizer parameters: 0.9:0.999:0.1
 Learning rate: 0.1
 Weight initializing method: uniform
 Initial weight range: -0.1:0.1
-Data source: bitcounter
+Data source: glass
 Data source parameters: 500:15
 Case fraction: 1
 Validation fraction: 0.1
