@@ -10,7 +10,8 @@ import random
 
 class Gann():
 
-    def __init__(self, dims, cman, lrate=.1, mbs=10, vint=None, softmax=True, optimize_func="adam", error="crossentropy"):
+    def __init__(self, dims, cman, lrate=.1, mbs=10, vint=None, softmax=True, optimize_func="adam", error="crossentropy",
+                 range_min=-0.1, range_max=.1, hidden_func="relu"):
         self.learning_rate = lrate
         self.layer_sizes = dims  # Sizes of each layer of neurons
         self.grabvars = []  # Variables to be monitored (by gann code) during a run.
@@ -21,7 +22,7 @@ class Gann():
         self.caseman = cman
         self.softmax_outputs = softmax
         self.modules = []
-        self.build(optimize_func, error)
+        self.build(optimize_func, error, range_min, range_max, hidden_func)
 
     # Probed variables are to be displayed in the Tensorboard.
     def gen_probe(self, module_index, type, spec):
@@ -41,7 +42,7 @@ class Gann():
     def add_module(self, module):
         self.modules.append(module)
 
-    def build(self, optimizer, error):
+    def build(self, optimizer, error, range_min, range_max, hidden_func):
         tf.reset_default_graph()  # This is essential for doing multiple runs!!
         num_inputs = self.layer_sizes[0]
         self.input = tf.placeholder(tf.float64, shape=(None, num_inputs), name='Input')
@@ -49,7 +50,7 @@ class Gann():
         insize = num_inputs
         # Build all of the modules
         for i, outsize in enumerate(self.layer_sizes[1:]):
-            gmod = Gannmodule(self, i, invar, insize, outsize)
+            gmod = Gannmodule(self, i, invar, insize, outsize, range_min, range_max, hidden_func)
             invar = gmod.output
             insize = gmod.outsize
         self.output = gmod.output  # Output of last module is output of whole network
@@ -273,23 +274,26 @@ class Gann():
 # A general ann module = a layer of neurons (the output) plus its incoming weights and biases.
 class Gannmodule():
 
-    def __init__(self, ann, index, invariable, insize, outsize):
+    def __init__(self, ann, index, invariable, insize, outsize, range_min, range_max, hidden_func):
         self.ann = ann
         self.insize = insize  # Number of neurons feeding into this module
         self.outsize = outsize  # Number of neurons in this module
         self.input = invariable  # Either the gann's input variable or the upstream module's output
         self.index = index
         self.name = "Module-" + str(self.index)
-        self.build()
+        self.build(range_min, range_max, hidden_func)
 
-    def build(self):
+    def build(self, range_min, range_max, hidden_func):
         mona = self.name
         n = self.outsize
-        self.weights = tf.Variable(np.random.uniform(-.1, .1, size=(self.insize, n)),
+        self.weights = tf.Variable(np.random.uniform(range_min, range_max, size=(self.insize, n)),
                                    name=mona + '-wgt', trainable=True)  # True = default for trainable anyway
-        self.biases = tf.Variable(np.random.uniform(-.1, .1, size=n),
+        self.biases = tf.Variable(np.random.uniform(range_min, range_max, size=n),
                                   name=mona + '-bias', trainable=True)  # First bias vector
-        self.output = tf.nn.relu(tf.matmul(self.input, self.weights) + self.biases, name=mona + '-out')
+        if hidden_func.lower() == "relu":
+            self.output = tf.nn.relu(tf.matmul(self.input, self.weights) + self.biases, name=mona + '-out')
+        elif hidden_func.lower() == "sigmoid":
+            self.output = tf.nn.sigmoid(tf.matmul(self.input, self.weights) + self.biases, name=mona + '-out')
         self.ann.add_module(self)
 
     def getvar(self, type):  # type = (in,out,wgt,bias)
