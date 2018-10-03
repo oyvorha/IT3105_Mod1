@@ -3,10 +3,11 @@ import GeneratedCases.NN_gen_cases as gen
 import WineYeastGlass.NN_wine_yeast_glass as wyg
 import mnist.NN_mnist as mnist
 import iris_final.NN_iris as iris
+import os
 
 base_path = "config_files/"
-input_map = {1: "bit_counter.txt", 2: "parity.txt", 3: "symmetry.txt", 4: "segmented_vectors",
-             5: "wine.txt", 6: "yeast.txt", 7: "glass.txt", 8: "mnist.txt", 9: "glass.txt"}
+input_map = {1: "bit_counter.txt", 2: "parity.txt", 3: "symmetry.txt", 4: "segmented_vectors.txt",
+             5: "wine.txt", 6: "yeast.txt", 7: "glass.txt", 8: "mnist.txt", 9: "iris.txt"}
 
 
 def run_NN(filename):
@@ -58,9 +59,10 @@ def run_NN(filename):
                         config.val_frac, config.test_frac, config.hidden_act_func)
 
 
-def pretty_print():
+def pretty_print(edit=True):
     print("--------------menu-----------------")
-    print("0: quit")
+    if edit:
+        print("0: quit")
     print("1: bit counter")
     print("2: parity")
     print("3: symmetry")
@@ -70,7 +72,8 @@ def pretty_print():
     print("7: glass")
     print("8: mnist")
     print("9: iris (hackers choice)")
-    print("10: edit settings")
+    if edit:
+        print("10: edit settings")
 
 
 def main():
@@ -80,6 +83,11 @@ def main():
         choice = input()
         if int(choice) in input_map.keys():
             run_NN(input_map[int(choice)])
+        elif int(choice) == 10:
+            pretty_print(False)
+            edit = input()
+            script = "vim "+ base_path + input_map[int(edit)]
+            os.system("bash -c '%s'" % script)
 
 
 if __name__ == '__main__':
