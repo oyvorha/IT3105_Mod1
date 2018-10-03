@@ -1,0 +1,19 @@
+Steps: 5000
+Validation interval: 100
+Best K: 1
+Map Batch Size: 10
+Map Dendograms:
+Dendograms:
+Display variables:
+Network dimensions: 10:10:2
+Hidden activation function: relu
+Output activation function: softmax
+Loss function: crossentropy
+Optimizer: adam
+Learning rate: 0.01
+Initial weight range: -0.1:0.1
+Data source parameters: 10
+Validation fraction: 0.1
+Test fraction: 0.1
+Minibatch size: 100
+Softmax: 1

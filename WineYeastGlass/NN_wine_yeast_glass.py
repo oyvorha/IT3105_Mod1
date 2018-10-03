@@ -2,8 +2,8 @@ from GANN import *
 import WineYeastGlass.filereader as fr
 
 
-def wine_class(dims=[11, 100, 100, 100, 10, 8], lrate=0.001, mbs=500, vint=250, softmax=True, optimizer="adam", error="crossentropy",
-               runs=5000, bestk=1, no_of_cases=100, display_grabvars=[],
+def wine_class(dims=[11, 100, 100, 100, 100, 8], lrate=0.001, mbs=500, vint=250, softmax=True, optimizer="adam", error="crossentropy",
+               runs=15000, bestk=1, no_of_cases=100, display_grabvars=[],
                dendrogram_layers=[], dendrogram=False, range_min=-.1, range_max=.1,
                 vfrac=.1, tfrac=.1, hidden_func="relu"):
     def cfunc_wine_vectors():
@@ -16,8 +16,8 @@ def wine_class(dims=[11, 100, 100, 100, 10, 8], lrate=0.001, mbs=500, vint=250, 
                                      dendrogram)
 
 
-def yeast_class(dims=[8, 100, 100, 10], lrate=0.001, mbs=512, vint=500, softmax=True, optimizer="adam", error="crossentropy",
-                runs=10000, bestk=1, no_of_cases=10, display_grabvars=[],
+def yeast_class(dims=[8, 100, 100, 100, 100, 10], lrate=0.001, mbs=512, vint=500, softmax=True, optimizer="adam", error="crossentropy",
+                runs=15000, bestk=1, no_of_cases=10, display_grabvars=[],
                 dendrogram_layers=[], dendrogram=False, range_min=-.1, range_max=.1,
                 vfrac=.1, tfrac=.1, hidden_func="relu"):
     def cfunc_yeast_vectors():
@@ -42,3 +42,5 @@ def glass_class(dims=[9, 100, 100, 100, 6], lrate=0.01, mbs=200, vint=500, softm
     gann_glass_vectors.run(runs, bestk=bestk)
     if display_grabvars or dendrogram:
         gann_glass_vectors.do_mapping(no_of_cases, display_grabvars, dendrogram_layers, bestk, dendrogram)
+
+yeast_class()
