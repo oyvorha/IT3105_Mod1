@@ -1,6 +1,5 @@
 import tensorflow as tf
 import numpy as np
-import math
 import matplotlib.pyplot as PLT
 import tflowtools as TFT
 import random
@@ -11,21 +10,18 @@ import random
 
 class Gann():
 
-    def __init__(self, dims, cman, lrate=.1, showint=None, mbs=10, vint=None, softmax=False):
+    def __init__(self, dims, cman, lrate=.1, mbs=10, vint=None, softmax=True, optimize_func="adam", error="crossentropy"):
         self.learning_rate = lrate
         self.layer_sizes = dims  # Sizes of each layer of neurons
-        self.show_interval = showint  # Frequency of showing grabbed variables
-        self.global_training_step = 0  # Enables coherent data-storage during extra training runs (see runmore).
         self.grabvars = []  # Variables to be monitored (by gann code) during a run.
-        self.grabvar_figures = []  # One matplotlib figure for each grabvar
+        self.dendrogram_vars = []
         self.minibatch_size = mbs
         self.validation_interval = vint
         self.validation_history = []
-        self.accuracy_history = []
         self.caseman = cman
         self.softmax_outputs = softmax
         self.modules = []
-        self.build()
+        self.build(optimize_func, error)
 
     # Probed variables are to be displayed in the Tensorboard.
     def gen_probe(self, module_index, type, spec):
@@ -35,7 +31,9 @@ class Gann():
     # grabvar gets its own matplotlib figure in which to display its value.
     def add_grabvar(self, module_index, type='wgt'):
         self.grabvars.append(self.modules[module_index].getvar(type))
-        self.grabvar_figures.append(PLT.figure())
+
+    def add_dendrogram_var(self, module_index, type='wgt'):
+        self.dendrogram_vars.append(self.modules[module_index].getvar(type))
 
     def roundup_probes(self):
         self.probes = tf.summary.merge_all()
@@ -43,7 +41,7 @@ class Gann():
     def add_module(self, module):
         self.modules.append(module)
 
-    def build(self):
+    def build(self, optimizer, error):
         tf.reset_default_graph()  # This is essential for doing multiple runs!!
         num_inputs = self.layer_sizes[0]
         self.input = tf.placeholder(tf.float64, shape=(None, num_inputs), name='Input')
@@ -56,54 +54,42 @@ class Gann():
             insize = gmod.outsize
         self.output = gmod.output  # Output of last module is output of whole network
         if self.softmax_outputs:
+            self.raw_output = self.output
             self.output = tf.nn.softmax(self.output)
         self.target = tf.placeholder(tf.float64, shape=(None, gmod.outsize), name='Target')
-        self.configure_learning()
+        self.configure_learning(optimizer, error)
 
     # The optimizer knows to gather up all "trainable" variables in the function graph and compute
     # derivatives of the error function with respect to each component of each variable, i.e. each weight
     # of the weight array.
 
-    def configure_learning(self):
-        self.error = tf.reduce_mean(tf.square(self.target - self.output), name='MSE')
+    def configure_learning(self, optimize_func, error):
         self.predictor = self.output  # Simple prediction runs will request the value of output neurons
-        # Defining the training operator
-        optimizer = tf.train.GradientDescentOptimizer(self.learning_rate)
-        self.trainer = optimizer.minimize(self.error, name='Backprop')
 
-    """
-    def do_training_one_mbatch(self, sess, cases, epochs=100, continued=False):
-        if not (continued):
-            self.error_history = []
-        for i in range(epochs):
-            # random.shuffle(cases)
-            error = 0
-            step = self.global_training_step + i
-            gvars = [self.error] + self.grabvars
-            mbs = self.minibatch_size
-            ncases = len(cases)
-            for cstart in range(0, ncases, mbs):  # Loop through cases, one minibatch at a time.
-                cend = min(ncases, cstart + mbs)
-                minibatch = cases[cstart:cend]
-                # inputs = [c[0] for c in minibatch]
-                # targets = [c[1] for c in minibatch]
-                feeder = {self.input: inputs, self.target: targets}
-                _, grabvals, _ = self.run_one_step([self.trainer], gvars, self.probes, session=sess,
-                                                   feed_dict=feeder, step=step, show_interval=self.show_interval)
-                if i % 50 == 0:
-                    self.error_history.append((step, grabvals))
-            self.consider_validation_testing(step, sess)
-        self.global_training_step += epochs
-        TFT.plot_training_history(self.error_history, self.validation_history, xtitle="Epoch", ytitle="Error",
-                                  title="", fig=not (continued))
-    """
+        # Defining the training operator
+        if optimize_func.lower() == "graddescent":
+            optimizer = tf.train.GradientDescentOptimizer(self.learning_rate)
+        elif optimize_func.lower() == "adam":
+            optimizer = tf.train.AdamOptimizer(self.learning_rate)
+        elif optimize_func.lower() == "rms":
+            optimizer = tf.train.RMSPropOptimizer(self.learning_rate)
+        elif optimize_func.lower() == "adagrad":
+            optimizer = tf.train.AdagradOptimizer(self.learning_rate)
+        else:
+            optimizer = None
+
+        # Defining the loss function
+        if error.lower() == "mse":
+            self.error = tf.reduce_mean(tf.square(self.target - self.output), name='MSE')
+        elif error.lower() == "crossentropy":
+            self.error = tf.losses.softmax_cross_entropy(self.target, self.raw_output)
+
+        self.trainer = optimizer.minimize(self.error, name='Backprop')
 
     def do_training(self, sess, cases, steps=100, continued=False):
         if not continued:
             self.error_history = []
-        error = 0
-        for i in range(steps):
-            step = self.global_training_step + i
+        for step in range(steps):
             gvars = [self.error] + self.grabvars
             mbs = self.minibatch_size
             minibatch = []
@@ -114,15 +100,11 @@ class Gann():
             targets = [c[1] for c in minibatch]
             feeder = {self.input: inputs, self.target: targets}
             _, grabvals, _ = self.run_one_step([self.trainer], gvars, self.probes, session=sess,
-                                               feed_dict=feeder, step=step, show_interval=self.show_interval)
-            error += grabvals[0]
-            if i % 50 == 0 and i != 0:
-                self.error_history.append((step, error/50))
-                self.accuracy_history.append((step, 1-error/50))
-                error = 0
+                                               feed_dict=feeder, step=step)
+            self.error_history.append((step, grabvals[0]))
             self.consider_validation_testing(step, sess)
-        TFT.plot_training_history(self.error_history, self.validation_history, self.accuracy_history,
-                                  xtitle="Epoch", ytitle="Error", title="", fig=not continued)
+        TFT.plot_training_history(self.error_history, self.validation_history,
+                                  xtitle="Steps", ytitle="Error", title="", fig=not continued)
 
     # bestk = 1 when you're doing a classification task and the targets are one-hot vectors.  This will invoke the
     # gen_match_counter error function. Otherwise, when
@@ -137,12 +119,47 @@ class Gann():
             self.test_func = self.gen_match_counter(self.predictor, [TFT.one_hot_to_int(list(v)) for v in targets],
                                                     k=bestk)
         testres, grabvals, _ = self.run_one_step(self.test_func, self.grabvars, self.probes, session=sess,
-                                                 feed_dict=feeder, show_interval=None)
+                                                 feed_dict=feeder)
         if bestk is None:
             print('%s Set Error = %f ' % (msg, testres))
         else:
             print('%s Set Correct Classifications = %f %%' % (msg, 100 * (testres / len(cases))))
         return testres  # self.error uses MSE, so this is a per-case value when bestk=None
+
+    def do_mapping(self, no_of_cases, defined_grab_vars=[], dendrogram_layers=[], bestk=None, dendrogram=False, labels=False):
+        self.reopen_current_session()
+        if len(defined_grab_vars) > 0:
+            for (layer, type) in defined_grab_vars:
+                if (layer-1, 'in') not in defined_grab_vars:
+                    self.add_grabvar(layer-1, type)
+        if len(dendrogram_layers) > 0:
+            for layer in dendrogram_layers:
+                self.add_dendrogram_var(layer-1, 'out')
+        cases = self.get_random_cases(no_of_cases)
+        inputs = [c[0] for c in cases]
+        targets = [c[1] for c in cases]
+        if bestk is not None:
+            self.test_func = self.gen_match_counter(self.predictor, [TFT.one_hot_to_int(list(v)) for v in targets],
+                                                    k=bestk)
+        feeder = {self.input: inputs, self.target: targets}
+        testres, grabvals, _ = self.run_one_step(self.test_func, [self.grabvars, self.dendrogram_vars], self.probes, session=self.current_session,
+                                                 feed_dict=feeder)
+        self.display_grabvars(grabvals[0], self.grabvars)
+        if dendrogram:
+            if labels:
+                input_den = [target for target in targets]
+            else:
+                input_den = [TFT.bits_to_str(case) for case in inputs]
+            for i, grabval in enumerate(grabvals[1]):
+                TFT.dendrogram(grabval, input_den, title=self.dendrogram_vars[i].name)
+
+    def get_random_cases(self, no_of_cases):
+        total_cases = self.caseman.get_training_cases()
+        cases = []
+        while len(cases) < no_of_cases:
+            rand = random.randint(0, len(total_cases)-1)
+            cases.append(total_cases[rand])
+        return cases
 
     # Logits = tensor, float - [batch_size, NUM_CLASSES].
     # labels: Labels tensor, int32 - [batch_size], with values in range [0, NUM_CLASSES).
@@ -157,11 +174,11 @@ class Gann():
         correct = tf.nn.in_top_k(tf.cast(logits, tf.float32), labels, k)  # Return number of correct outputs
         return tf.reduce_sum(tf.cast(correct, tf.int32))
 
-    def training_session(self, epochs, sess=None, dir="probeview", continued=False):
+    def training_session(self, steps, sess=None, dir="probeview", continued=False):
         session = sess if sess else TFT.gen_initialized_session(dir=dir)
         self.current_session = session
         self.roundup_probes()  # this call must come AFTER the session is created, else graph is not in tensorboard.
-        self.do_training(session, self.caseman.get_training_cases(), epochs, continued=continued)
+        self.do_training(session, self.caseman.get_training_cases(), steps, continued=continued)
 
     def testing_session(self, sess, bestk=None):
         cases = self.caseman.get_testing_cases()
@@ -182,39 +199,35 @@ class Gann():
     # Similar to the "quickrun" functions used earlier.
 
     def run_one_step(self, operators, grabbed_vars=None, probed_vars=None, dir='probeview',
-                     session=None, feed_dict=None, step=1, show_interval=1):
+                     session=None, feed_dict=None, step=1):
         sess = session if session else TFT.gen_initialized_session(dir=dir)
         if probed_vars is not None:
             results = sess.run([operators, grabbed_vars, probed_vars], feed_dict=feed_dict)
             sess.probe_stream.add_summary(results[2], global_step=step)
         else:
             results = sess.run([operators, grabbed_vars], feed_dict=feed_dict)
-        if show_interval and (step % show_interval == 0):
-            self.display_grabvars(results[1], grabbed_vars, step=step)
         return results[0], results[1], sess
 
     def display_grabvars(self, grabbed_vals, grabbed_vars, step=1):
         names = [x.name for x in grabbed_vars]
         msg = "Grabbed Variables at Step " + str(step)
         print("\n" + msg, end="\n")
-        fig_index = 0
         for i, v in enumerate(grabbed_vals):
             if names:
                 print("   " + names[i] + " = ", end="\n")
             if type(v) == np.ndarray and len(v.shape) > 1:  # If v is a matrix, use hinton plotting
-                TFT.hinton_plot(v, fig=self.grabvar_figures[fig_index], title=names[i] + ' at step ' + str(step))
-                TFT.display_matrix(v)
-                fig_index += 1
+                TFT.hinton_plot(v, title=names[i] + ' at step ' + str(step))
+                TFT.display_matrix(v, title=names[i] + ' at step ' + str(step))
             else:
                 print(v, end="\n\n")
 
     def run(self, steps=100, sess=None, continued=False, bestk=None):
         PLT.ion()
-        PLT.show()
         self.training_session(steps, sess=sess, continued=continued)
         self.test_on_trains(sess=self.current_session, bestk=bestk)
         self.testing_session(sess=self.current_session, bestk=bestk)
         self.close_current_session(view=False)
+        PLT.show()
         PLT.ioff()
 
     # After a run is complete, runmore allows us to do additional training on the network, picking up where we
