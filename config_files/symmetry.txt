@@ -12,15 +12,8 @@ Loss function: crossentropy
 Optimizer: adam
 Learning rate: 0.001
 Initial weight range: -0.1:0.1
-Data source parameters: 10
+Data source parameters: 100:2000
 Validation fraction: 0.1
 Test fraction: 0.1
 Minibatch size: 100
 Softmax: 1
-
-
-
-
-def symmetry(
-             runs=5000, bestk=1, no_of_cases=10, display_grabvars=[], dendrogram_layers=[], dendrogram=False,
-             range_min=-.1, range_max=.1, vfrac=.1, tfrac=.1, hidden_func="relu", data_src_params=[100, 2000]):
