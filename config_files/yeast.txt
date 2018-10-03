@@ -1,11 +1,11 @@
-Steps: 10000
+Steps: 15000
 Validation interval: 500
 Best K: 1
 Map Batch Size: 10
 Map Dendograms:
 Dendograms:
 Display variables:
-Network dimensions: 8:100:100:10
+Network dimensions: 8:100:100:100:100:10
 Hidden activation function: relu
 Output activation function: softmax
 Loss function: crossentropy
