@@ -1,11 +1,4 @@
 class Settings():
-    import tensorflow as tf
-    import numpy as np
-    import math
-    import matplotlib.pyplot as PLT
-    import tflowtools as TFT
-    import random
-
 
     def __init__(self):
         self.steps = None
@@ -14,20 +7,16 @@ class Settings():
         self.map_batch_size = None
         self.map_layers = []
         self.map_dendograms = []
-        self.display_weights = False
-        self.display_biases = False
+        self.display_variables = False
         self.dims = []
         self.hidden_act_func = None
         self.output_act_func = None
         self.loss_func = None
         self.optimizer = None
-        self.optimizer_param = []
         self.learning_rate = None
-        self.wgt_init_met = None
         self.init_wgt_range = []
         self.data_source = None
         self.data_source_param = []
-        self.case_frac = None
         self.val_frac = None
         self.test_frac = None
         self.mbs = None
@@ -35,7 +24,6 @@ class Settings():
 
 def read_file ():
     config = Settings()
-    cases = []
     file_obj = open("input", 'r')
     for line in file_obj.readlines():
         line_vec = line.split(':')
@@ -68,13 +56,12 @@ def read_file ():
                 for v in val:
                     config.map_dendograms.append(int(v))
 
-        elif label.lower().rstrip() == "display weights":
+        elif label.lower().rstrip() == "display variables":
             if val_is_set:
-                config.display_weights = True
-
-        elif label.lower().rstrip() == "display biases":
-            if val_is_set:
-                config.display_biases = True
+                display_var = []
+                for i in range(0, len(val)-1, 2):
+                    display_var.append((int(val[i]), val[i+1]))
+                config.display_variables = display_var
 
         elif label.lower().rstrip() == "network dimensions":
             if val_is_set:
@@ -93,16 +80,8 @@ def read_file ():
         elif label.lower().rstrip() == "optimizer":
             config.optimizer = val[0].strip()
 
-        elif label.lower().rstrip() == "optimizer parameters":
-            if val_is_set:
-                for v in val:
-                    config.optimizer_param.append(float(v))
-
         elif label.lower().rstrip() == "learning rate":
             config.learning_rate = float(val[0].rstrip())
-
-        elif label.lower().rstrip() == "weight initializing method":
-            config.wgt_init_met = val[0].strip()
 
         elif label.lower().rstrip() == "initial weight range":
             if val_is_set:
@@ -117,9 +96,6 @@ def read_file ():
                 for v in val:
                     config.data_source_param.append(int(v))
 
-        elif label.lower().rstrip() == "case fraction":
-            config.case_frac = int(val[0].rstrip())
-
         elif label.lower().rstrip() == "validation fraction":
             config.val_frac = float(val[0].rstrip())
 
@@ -132,5 +108,3 @@ def read_file ():
         file_obj.close()
 
     return config
-
-read_file()
