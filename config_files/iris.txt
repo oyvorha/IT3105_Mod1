@@ -17,4 +17,3 @@ Validation fraction: 0.1
 Test fraction: 0.1
 Minibatch size: 100
 Softmax: 1
-

@@ -35,7 +35,7 @@ def symmetry(dims=[101, 10, 2], lrate=0.001, mbs=100, vint=100, softmax=True, op
     def cfunc_symmetry():
         cases = []
         dataset = tft.gen_symvect_dataset(data_src_params[0], data_src_params[1])
-        for i in range(2000):
+        for i in range(data_src_params[1]):
             if tft.check_vector_symmetry(dataset[i]):
                 label = [1, 0]
             else:
