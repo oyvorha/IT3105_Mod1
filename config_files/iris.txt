@@ -10,7 +10,7 @@ Hidden activation function: relu
 Output activation function: softmax
 Loss function: crossentropy
 Optimizer: adam
-Learning rate: 0.01
+Learning rate: 0.005
 Initial weight range: -0.1:0.1
 Data source parameters: 25:1000:0:8
 Validation fraction: 0.1
