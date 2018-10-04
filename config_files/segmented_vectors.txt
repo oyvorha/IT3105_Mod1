@@ -1,4 +1,4 @@
-Steps: 8000
+Steps: 12000
 Validation interval: 500
 Best K: 1
 Map Batch Size: 10
