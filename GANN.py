@@ -57,6 +57,8 @@ class Gann():
         if self.softmax_outputs:
             self.raw_output = self.output
             self.output = tf.nn.softmax(self.output)
+        else:
+            self.raw_output = self.output
         self.target = tf.placeholder(tf.float64, shape=(None, gmod.outsize), name='Target')
         self.configure_learning(optimizer, error)
 
